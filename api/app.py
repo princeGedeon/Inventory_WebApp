@@ -47,4 +47,5 @@ async def update_supplier(supplier_id:int,update_info:supplier_pydanticIn):
 
 @app.delete("/supplier/{supplied_id}")
 async def delete_supploer(supplied_id):
-    pass
+    await Supplier.get(id=supplied_id).delete()
+    return {"status":"ok"}
