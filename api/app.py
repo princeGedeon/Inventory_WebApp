@@ -27,3 +27,24 @@ async def add_supplier(supllier_info:supplier_pydanticIn):
 async def get_all_supllier():
     response=await supplier_pydantic.from_queryset(Supplier.all())
     return {"status":"ok","data":response}
+
+@app.get('/supplier/{supplied_id}')
+async def get_specific_supplied(supplied_id:int):
+    response=await supplier_pydantic.from_queryset_single(Supplier.get(id=supplied_id))
+    return {"status": "ok", "data": response}
+
+@app.put('/supplier/{supplied_id}')
+async def update_supplier(supplier_id:int,update_info:supplier_pydanticIn):
+    supplier=await Supplier.get(id=supplier_id)
+    update_info=update_info.dict(exclude_unset=True)
+    supplier.name=update_info['name']
+    supplier.company=update_info['company']
+    supplier.phone=update_info['phone']
+    supplier.email=update_info['email']
+    await supplier.save()
+    response=await supplier_pydantic.from_tortoise_orm(supplier)
+    return {"status":"ok","data":response}
+
+@app.delete("/supplier/{supplied_id}")
+async def delete_supploer(supplied_id):
+    pass
