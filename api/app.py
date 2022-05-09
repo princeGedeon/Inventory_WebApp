@@ -50,3 +50,40 @@ async def delete_supploer(supplied_id):
     await Supplier.get(id=supplied_id).delete()
     return {"status":"ok"}
 
+@app.post('/product/{supplier_id}')
+async def add_product(supplier_id:int,product_details:product_pydanticIn):
+    supplier=await Supplier.get(id=supplier_id)
+    product=await product_details.dict(exclude_unset=True)
+    product_details['revenue']+=product_details['quantity_in_sold']*product_details['price_unity']
+    product_obj=await Product.create(**product_details,supplied_by=supplier)
+    response=product_pydantic.from_tortoise_orm(product_obj)
+    return {'status':"ok","data":response}
+
+
+@app.get('/product')
+async def get_all_prodicts():
+    response=await product_pydantic.from_queryset(Product.all())
+    return {'status':"ok","data":response}
+
+@app.get("/product/{id}")
+async def specific_product(id:int):
+    response=await product_pydantic.from_queryset_single(Product.get(id=id))
+    return {"status":"ok","data":response}
+
+@app.put("/product/{id}")
+async def update_product(id:int,update_info:product_pydanticIn):
+    product=await Product.get(id=id)
+    update_info=update_info.dict(exclude_unset=True)
+    product.name=update_info['name']
+    product.quantity_in_sold=update_info['quantity_in_sold']
+    product.quantity_in_stock=update_info['quantity_in_stock']
+    product.revenue+=update_info['quantity_in_sold']*update_info['price_unity']
+    product.price_unity=update_info['price_unity']
+    await  product.save()
+    response=await product_pydantic.from_tortoise_orm(product)
+    return {"status": "ok", "data": response}
+
+@app.delete("/product/{id}")
+async def delete_product(id:int):
+    await Product.filter(id=id).delete()
+    return {"status": "ok", "data": response}

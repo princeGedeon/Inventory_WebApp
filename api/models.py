@@ -6,7 +6,7 @@ class Product(Model):
     id=fields.IntField(pk=True)
     name=fields.CharField(max_length=30,nullable=False)
     quantity_in_stock=fields.IntField(default=0)
-    quantity_in_solf=fields.IntField(default=0)
+    quantity_in_sold=fields.IntField(default=0)
     price_unity=fields.DecimalField(max_digits=20,decimal_places=10,default=00)
     supplied_by=fields.ForeignKeyField('models.Supplier',related_name="good_supplied")
     revenue=fields.DecimalField(max_digits=20,decimal_places=10,default=00)
