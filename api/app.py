@@ -49,3 +49,4 @@ async def update_supplier(supplier_id:int,update_info:supplier_pydanticIn):
 async def delete_supploer(supplied_id):
     await Supplier.get(id=supplied_id).delete()
     return {"status":"ok"}
+
