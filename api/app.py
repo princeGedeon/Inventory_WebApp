@@ -2,8 +2,34 @@ from fastapi import FastAPI
 from tortoise.contrib.fastapi import register_tortoise
 from models import supplier_pydantic,supplier_pydanticIn,product_pydantic,product_pydanticIn,Supplier,Product
 
-app=FastAPI()
+#email
+from fastapi import BackgroundTasks,UploadFile,File,Form
+from starlette.responses import  JSONResponse
+from starlette.requests import Request
+from fastapi_mail import FastMail,MessageSchema,ConnectionConfig
+from typing import List,ContextManager
+from pydantic import BaseModel,EmailStr
 
+#dotenv
+from dotenv import dotenv_values
+#credentials
+credentials=dotenv_values('.env')
+#adding CORS header
+from fastapi.middleware.cors import CORSMiddleware
+
+app=FastAPI()
+#adding urls cors
+origins=[
+    "http://localhost:3000",
+]
+# add middleware
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,
+    allow_credentials=True,
+    allow_methods=['*'],
+    allow_headers=["*"]
+)
 #Intégration Model et API
 register_tortoise(
     app,
@@ -88,3 +114,48 @@ async def update_product(id:int,update_info:product_pydanticIn):
 async def delete_product(id:int):
     response=await Product.filter(id=id).delete()
     return {"status": "ok", "data": response}
+
+
+class EmailSchema(BaseModel):
+    email:List[EmailStr]
+
+class EmailContent(BaseModel):
+    message:str,
+    subject:str
+
+conf=ConnectionConfig(
+    MAIL_USERNAME=credentials['EMAIL'],
+    MAIL_PASSWORD=credentials['PASS'],
+    MAIL_FROM=credentials['EMAIL'],
+    MAIL_PORT=587,
+    MAIL_SERVER="smtp.gamil.com",
+    MAIL_TLS=True,
+    MAIL_SSL=False,
+    USE_CREDENTIALS=True,
+    )
+@app.post('email/{product}')
+async def send_mail(product_id:int,content: EmailContent):
+    product=await Product.get(id=product_id)
+    supplier=await product.supplied_by
+    supplier_email=[supplier.email]
+
+    html=f"""
+    <h1>Prince Gedeon PRo</h1>
+    <br>
+    <p>{content.subject}</p>
+     <br>
+    <p>{content.message}</p>
+     <br>
+    <h6>Best </h6>
+    <h6>Prince Business</h6>s
+    """
+    message = MessageSchema(
+        subject=content.subject,
+        recipients=supplier_email,  # Liste des receveur
+        body=html,
+        subtype="html"
+    )
+
+    fm = FastMail(conf)
+    await fm.send_message(message)
+    return {"status":"ok"}
