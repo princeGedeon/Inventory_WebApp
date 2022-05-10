@@ -120,20 +120,20 @@ class EmailSchema(BaseModel):
     email:List[EmailStr]
 
 class EmailContent(BaseModel):
-    message:str,
+    message:str
     subject:str
 
 conf=ConnectionConfig(
-    MAIL_USERNAME=credentials['EMAIL'],
-    MAIL_PASSWORD=credentials['PASS'],
-    MAIL_FROM=credentials['EMAIL'],
+    MAIL_USERNAME="guedjegedeon03@gmail.com",
+    MAIL_PASSWORD="pkhnhmffgfyfpan",
+    MAIL_FROM="guedjegedeon03@gmail.com",
     MAIL_PORT=587,
-    MAIL_SERVER="smtp.gamil.com",
+    MAIL_SERVER="smtp.gmail.com",
     MAIL_TLS=True,
     MAIL_SSL=False,
     USE_CREDENTIALS=True,
     )
-@app.post('email/{product}')
+@app.post('/email/{product}')
 async def send_mail(product_id:int,content: EmailContent):
     product=await Product.get(id=product_id)
     supplier=await product.supplied_by
