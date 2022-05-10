@@ -124,8 +124,8 @@ class EmailContent(BaseModel):
     subject:str
 
 conf=ConnectionConfig(
-    MAIL_USERNAME="guedjegedeon03@gmail.com",
-    MAIL_PASSWORD="pkhnhmffgfyfpan",
+    MAIL_USERNAME=credentials['EMAIL'],
+    MAIL_PASSWORD=credentials['PASS'],
     MAIL_FROM="guedjegedeon03@gmail.com",
     MAIL_PORT=587,
     MAIL_SERVER="smtp.gmail.com",
